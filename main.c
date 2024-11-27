@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "TM4C123.h"
 #include "C:\Keil_v5\Lab 2\inc/tm4c123gh6pm.h"
@@ -84,43 +85,71 @@ void CAN0_Receive_Set(int objNo);
 void CAN0_Transmit_Data(int objNo, char data[8]);
 char* CAN0_Receive_Data(int objNo);
 
+bool isMaster = true; // Set this to true for master, false for slave
+
 int main(void)
 {
 	int read_number = 0;
 	//Uart_Init();
 	Timer_Init();
 	Pwm_Init();
-	if (DHT11_Init()) {
-		printf("DHT11 initialization failed!\n");
-		return 1;
+	CAN0_Init();
+
+	if (isMaster) {
+		if (DHT11_Init()) {
+			printf("DHT11 initialization failed!\n");
+			return 1;
+		}
 	}
 
-    LCD_init();
-    LCD_Cmd(clear_display);
-    LCD_Cmd(FirstRow); /* Force cursor to beginning of first row */
-    delay_ms(500);
- 
-    LCD_Write_Char('A');
-    delay_ms(500);
-    
+	LCD_init();
+	LCD_Cmd(clear_display);
+	LCD_Cmd(FirstRow); /* Force cursor to beginning of first row */
+	delay_ms(500);
+
+	LCD_Write_Char('A');
+	delay_ms(500);
+
 	delay_ms(400); // wait DHT11 for stability
-	
-	while(1)
+
+	while (1)
 	{
-		while(DHT11_Read_Data())
-		{ 
-			delay_ms(5);
-			if(read_number > 250)
+		if (isMaster) {
+			while (DHT11_Read_Data())
 			{
-				printf("DHT11 does not work, please check and restart the system!\n");
-				PWM1->ENABLE &=	(unsigned)(~(1<<6)); //disable pwm1 channel
+				delay_ms(5);
+				if (read_number > 250)
+				{
+					printf("DHT11 does not work, please check and restart the system!\n");
+					PWM1->ENABLE &= (unsigned)(~(1 << 6)); //disable pwm1 channel
+				}
+				read_number++;
 			}
-			read_number++;
+			printf("Temp. is %d\n", temp);
+			printf("Humidity is %d\n", humi);
+
+			char data[8];
+			data[0] = temp;
+			data[1] = humi;
+			CAN0_Transmit_Data(1, data);
+
+			read_number = 0;
+		} else {
+			char* receivedData = CAN0_Receive_Data(1);
+			temp = receivedData[0];
+			humi = receivedData[1];
+
+			LCD_Cmd(clear_display);
+			LCD_Cmd(FirstRow);
+			char buffer[16];
+			sprintf(buffer, "Temp: %d", temp);
+			LCD_String(buffer);
+			LCD_Cmd(FirstRow + 0x40); // Move to second line
+			sprintf(buffer, "Humi: %d", humi);
+			LCD_String(buffer);
+
+			delay_ms(1000);
 		}
-		printf("Temp. is %d\n", temp);
-		printf("Humidity is %d\n", humi);
-			
-		read_number = 0;	
 	}
 }
 
