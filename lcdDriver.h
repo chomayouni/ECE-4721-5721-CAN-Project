@@ -1,15 +1,17 @@
+
 #ifndef LCD_DRIVER_H
 #define LCD_DRIVER_H
 
 #include "TM4C123.h"
 
-// LCD definitions
-#define LCD GPIOB
-#define RS 0x20
-#define RW 0x40
-#define EN 0x80
+#define LCD GPIOB   /* Define "LCD" as a symbolic name for GPIOB */
+#define RS 0x01 /* PORTB BIT5 mask */
+#define RW 0x02 /* PORTB BIT6 mask */
+#define EN 0x04 /* PORTB BIT7 mask */
+#define HIGH 1
+#define LOW 0
 
-// LCD commands
+/*define useful symbolic names for LCD commands */
 #define clear_display     0x01
 #define returnHome        0x02
 #define moveCursorRight   0x06
@@ -23,14 +25,18 @@
 #define Function_set_8bit 0x38
 #define Entry_mode        0x06
 #define Function_8_bit    0x32
-#define Set5x7FontSize    0x20
+#define Set5x7FontSize    0x28
 #define FirstRow          0x80
 
-// Function prototypes
+/* prototypes of LCD functions */
 void LCD_init(void);
 void LCD_Cmd(unsigned char command);
 void LCD_Write_Char(unsigned char data);
 void LCD_Write_Nibble(unsigned char data, unsigned char control);
-void LCD_String(char *str);
+void LCD_String (char *str);
+void LCD4bits_Data(unsigned char data);
+void LCD4bits_Init(void);
+void LCD4bits_Cmd(unsigned char command);
+void LCD_WriteString (char *str);
 
-#endif // LCD_DRIVER_H
+#endif
