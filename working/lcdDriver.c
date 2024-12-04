@@ -11,7 +11,7 @@ void LCD_init(void)
     LCD_Cmd(Function_set_4bit); /* Select 4-bit Mode of LCD */
     LCD_Cmd(moveCursorRight); /* shift cursor right */
     LCD_Cmd(clear_display); /* clear whatever is written on display */
-    LCD_Cmd(cursorBlink);  /* Enable Display and cursor blinking */
+    LCD_Cmd(cursorOff);  /* Enable Display and cursor blinking */
 }
 
 void LCD_Cmd(unsigned char command)
@@ -34,7 +34,7 @@ void LCD4bits_Init(void)
     LCD4bits_Cmd(Set5x7FontSize);  /* select 5x7 font size and 2 rows of LCD */
     LCD4bits_Cmd(moveCursorRight); /* shift cursor right */
     LCD4bits_Cmd(clear_display); /* clear whatever is written on display */
-    LCD4bits_Cmd(cursorBlink);  /* Enable Display and cursor blinking */
+    LCD4bits_Cmd(cursorOff);  /* Enable Display and cursor blinking */
 }
 
 void LCD4bits_Cmd(unsigned char command)

@@ -27,6 +27,7 @@
 #define Function_8_bit    0x32
 #define Set5x7FontSize    0x28
 #define FirstRow          0x80
+#define SecondRow         0xC0
 
 /* prototypes of LCD functions */
 void LCD_init(void);
